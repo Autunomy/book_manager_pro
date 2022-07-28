@@ -45,7 +45,9 @@ public class JwtUtil {
      *
      * @return
      */
-    public static String getUsernameByToken(String token) {
+    public static String getUsernameByToken(HttpServletRequest request) {
+        String bearerToken = request.getHeader("Authenticate");
+        String token = bearerToken.substring(bearerToken.indexOf(" ") + 1);
         Jws<Claims> claimsJws = Jwts.parser().setSigningKey(APP_SECRET).parseClaimsJws(token);
         Claims claims = claimsJws.getBody();
         return (String) claims.get("username");
