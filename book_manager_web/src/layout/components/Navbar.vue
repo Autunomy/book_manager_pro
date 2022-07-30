@@ -10,7 +10,7 @@
         <div class="avatar-wrapper">
           <!--          <img :src="avatar+''" class="user-avatar">-->
           <img
-            src="https://gimg2.baidu.com/image_search/src=http%3A%2F%2Fp3.itc.cn%2Fimages01%2F20210212%2F4db687a37e924267b7a787c98efe7d79.gif&refer=http%3A%2F%2Fp3.itc.cn&app=2002&size=f9999,10000&q=a80&n=0&g=0n&fmt=auto?sec=1661588773&t=807579f3b2fe8c9b6239cc71d5d9cd6e"
+            :src="avatar"
             class="user-avatar">
           <i class="el-icon-caret-bottom"/>
         </div>
@@ -41,7 +41,8 @@ import qs from "qs";
 export default {
   data(){
     return {
-      username:""
+      username:"",
+      avatar:"https://gimg2.baidu.com/image_search/src=http%3A%2F%2Fc-ssl.duitang.com%2Fuploads%2Fitem%2F201808%2F24%2F20180824152205_jwNBi.thumb.1000_0.gif&refer=http%3A%2F%2Fc-ssl.duitang.com&app=2002&size=f9999,10000&q=a80&n=0&g=0n&fmt=auto?sec=1661655256&t=05fdd1665bac6d59344bc595e214238e"
     }
   },
   components: {
@@ -50,32 +51,36 @@ export default {
   },
   computed: {
     ...mapGetters([
-      'sidebar',
-      'avatar'
+      'sidebar'
     ])
   },
   mounted() {
-    userApi.getInfo(getToken()).then(resp => {
-      this.username = resp.data.username;
-    }).catch(error => {
-      console.log("请求出错==>",error)
-    });
+    //获取用户信息
+    this.getUserInfo()
   },
   methods: {
+    //获取用户信息
+    getUserInfo(){
+      userApi.getInfo().then(resp => {
+        if(resp.code === 6666){
+          this.username = resp.data.username;
+        }
+      }).catch(error => {
+        this.$message.error("获取登陆用户信息出错");
+      });
+    },
     toggleSideBar() {
       this.$store.dispatch('app/toggleSideBar')
     },
     async logout() {
       // await this.$store.dispatch('user/logout')
-      // this.$router.push(`/login?redirect=${this.$route.fullPath}`)
       removeToken()
       this.$message.success({
         message: "注销成功",
         duration: 1000
       });
-      this.$router.push({
-        path: "/login"
-      })
+      //注销后，如果登陆后需要跳转到上次登陆页面，就需要这么写
+      this.$router.push(`/login?redirect=${this.$route.fullPath}`)
     }
   }
 }
@@ -110,6 +115,17 @@ export default {
     float: right;
     height: 100%;
     line-height: 50px;
+
+    span{
+      //background-color: pink;
+      display: inline-block;
+      height: 100%;
+      vertical-align: top;
+      margin-right: 10px;
+      font-size: 18px;
+      letter-spacing: 0.8px;
+      color: #666;
+    }
 
     &:focus {
       outline: none;

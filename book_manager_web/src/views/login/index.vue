@@ -90,6 +90,8 @@ export default {
     },
     //登陆业务
     handleLogin() {
+      //进度条
+      this.loading = true;
       //编写登陆业务
       userApi.login(qs.stringify(this.loginForm)).then(resp => {
         if(resp.code === 6666){
@@ -110,6 +112,7 @@ export default {
         //路由不跳转,提示错误信息
         this.$message.error("出错了"+error)
       })
+      this.loading = false;
     }
   }
 }

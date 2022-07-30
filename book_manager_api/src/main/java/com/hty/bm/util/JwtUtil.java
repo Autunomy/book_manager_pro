@@ -53,4 +53,12 @@ public class JwtUtil {
         return (String) claims.get("username");
     }
 
+    public static String getUsernameByToken(String token) {
+        token = token.substring(token.indexOf(" ") + 1);
+        Jws<Claims> claimsJws = Jwts.parser().setSigningKey(APP_SECRET).parseClaimsJws(token);
+        Claims claims = claimsJws.getBody();
+        return (String) claims.get("username");
+    }
+
+
 }

@@ -10,5 +10,4 @@ public class DataSourceUtilTest {
         DataSource dataSource = DataSourceUtil.getDataSource();
         System.out.println(dataSource);
     }
-
 }

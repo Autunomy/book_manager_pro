@@ -33,18 +33,10 @@ export default {
     })
   },
   getInfo(token){
+    //这里不需要在请求头中携带token，因为在请求拦截器中已经自动进行配置了
     return request({
       url: '/user/userInfo',
-      method: 'get',
-      headers:{
-        Authenticate:token
-      }
+      method: 'get'
     })
-  },
-  logout(){
-    return request({
-      url: '/vue-admin-template/user/logout',
-      method: 'post'
-    })
-  },
+  }
 }

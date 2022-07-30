@@ -1,4 +1,4 @@
-package com.hty.bm.controller;
+package com.hty.bm.controller.user;
 
 import com.alibaba.fastjson.JSON;
 import com.hty.bm.constant.ResponseMessage;

@@ -1,7 +1,7 @@
 import axios from 'axios'
 import { MessageBox, Message } from 'element-ui'
 import store from '@/store'
-import { getToken } from '@/utils/auth'
+import {getToken, setToken} from '@/utils/auth'
 
 // create an axios instance
 const service = axios.create({
@@ -24,6 +24,8 @@ service.interceptors.request.use(
 // 响应拦截器
 service.interceptors.response.use(
   response => {
+    //更新令牌 续约token
+    setToken(response.headers.authenticate)
     //响应实体
     return response.data
   }

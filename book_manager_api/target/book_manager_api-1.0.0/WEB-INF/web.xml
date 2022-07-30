@@ -13,12 +13,20 @@
         <filter-name>corsFilter</filter-name>
         <filter-class>com.hty.bm.filter.CorsFilter</filter-class>
     </filter>
+    <filter>
+        <filter-name>jwtFilter</filter-name>
+        <filter-class>com.hty.bm.filter.JwtFilter</filter-class>
+    </filter>
     <filter-mapping>
         <filter-name>charSetFilter</filter-name>
         <url-pattern>/*</url-pattern>
     </filter-mapping>
     <filter-mapping>
         <filter-name>corsFilter</filter-name>
+        <url-pattern>/*</url-pattern>
+    </filter-mapping>
+    <filter-mapping>
+        <filter-name>jwtFilter</filter-name>
         <url-pattern>/*</url-pattern>
     </filter-mapping>
 
