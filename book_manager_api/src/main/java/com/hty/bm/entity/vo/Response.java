@@ -1,9 +1,13 @@
 package com.hty.bm.entity.vo;
 
 import com.hty.bm.constant.ResponseMessage;
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Data
+@AllArgsConstructor
+@NoArgsConstructor
 public class Response {
     private Integer code;
     private String msg;
