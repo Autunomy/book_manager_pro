@@ -103,6 +103,28 @@ export const constantRoutes = [
       }
     ]
   },
+  {
+    //图书管理
+    path:"/book",
+    component:Layout,
+    redirect: "/book/list",
+    name:"book",
+    meta:{title: "图书管理", icon: 'el-icon-collection'},
+    children: [
+      {
+        path:'list',
+        name:'list',
+        component: () => import("@/views/book/list"),
+        meta: {title: '图书列表',icon: 'el-icon-document'}
+      },
+      {
+        path:'add',
+        name:'add',
+        component: () => import("@/views/book/add"),
+        meta: {title: '添加图书',icon: 'el-icon-news'}
+      }
+    ]
+  },
   // 404 page must be placed at the end !!!
   { path: '*', redirect: '/404', hidden: true }
 ]
