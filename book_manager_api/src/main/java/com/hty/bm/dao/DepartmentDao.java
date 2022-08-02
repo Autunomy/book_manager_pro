@@ -35,8 +35,8 @@ public class DepartmentDao {
         Integer start = (currentPage - 1) * pageSize;
         QueryRunner queryRunner = new QueryRunner(DataSourceUtil.getDataSource());
 
-        //构造标签
-        String baseSql = "select * from department";
+        //构造sql
+        String baseSql = "select * from department ";
         Boolean isManyCondition = false;//条件标签
         if(!StringUtils.isEmpty(name) || !StringUtils.isEmpty(startCreateDate) || !StringUtils.isEmpty(endCreateDate)){
             baseSql += " where ";
@@ -75,10 +75,24 @@ public class DepartmentDao {
      * @return
      * @throws SQLException
      */
-    public Long selectCount() throws SQLException {
+    public Long selectCount(String name,String startCreateDate,String endCreateDate) throws SQLException {
         QueryRunner queryRunner = new QueryRunner(DataSourceUtil.getDataSource());
-        String sql = "select count(*) from department";
-        Long count = queryRunner.query(sql, new ScalarHandler<>());
+
+        String baseSql = "select count(*) from department";
+        if(!StringUtils.isEmpty(name) || !StringUtils.isEmpty(startCreateDate) || !StringUtils.isEmpty(endCreateDate)){
+            baseSql += " where ";
+            if(!StringUtils.isEmpty(name)){
+                baseSql += "match(name) against ('"+name+"')";
+                if(!StringUtils.isEmpty(startCreateDate) && !StringUtils.isEmpty(endCreateDate)){
+                    baseSql += "and create_date >= '"+startCreateDate+"' and create_date <= '"+endCreateDate+"'";
+                }
+            }else{
+                baseSql += "create_date >= '"+startCreateDate+"' and create_date <= '"+endCreateDate+"'";
+            }
+        }
+
+
+        Long count = queryRunner.query(baseSql, new ScalarHandler<>());
         return count;
     }
 
@@ -98,4 +112,12 @@ public class DepartmentDao {
         return rows;
     }
 
+    public List<Department> selectAll() throws SQLException {
+        QueryRunner queryRunner = new QueryRunner(DataSourceUtil.getDataSource());
+
+        String sql = "select * from department";
+        List<Department> execute = queryRunner.query(sql, new BeanListHandler<Department>(Department.class));
+        return execute;
+
+    }
 }

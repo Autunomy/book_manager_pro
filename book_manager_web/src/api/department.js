@@ -20,7 +20,7 @@ export default {
   //删除一个院系
   deleteDepartment(id){
     return request({
-      url:"/department/deleteDepartment?id="+id,
+      url:`/department/deleteDepartment?id=${id}`,
       method:"GET",
     })
   },
@@ -31,6 +31,11 @@ export default {
       method:"POST",
       data
     })
-
+  },
+  listAllDepartment(){
+    return request({
+      url:"/department/listAll",
+      method:"GET"
+    })
   }
 }

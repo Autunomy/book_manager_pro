@@ -3,7 +3,7 @@
     <div style="padding-left: 10px;padding-top:10px;">
       <el-form :inline="true" class="demo-form-inline">
         <el-form-item label="院系名称" style="margin-left: 20px">
-          <el-input v-model="formData.name" placeholder="请输入院系查询名称"></el-input>
+          <el-input  v-model="formData.name" placeholder="请输入院系查询名称"></el-input>
         </el-form-item>
 
         <el-form-item label="院系成立日期" style="margin-left: 20px">
@@ -19,6 +19,7 @@
 
         <el-form-item>
           <el-button @click="searchDepartmentListHandler" style="width: 140px;margin-left: 30px" type="primary">搜索院系</el-button>
+          <el-button @click="clearSearch" style="width: 140px;margin-left: 30px" type="default">清空搜索条件</el-button>
         </el-form-item>
       </el-form>
     </div>
@@ -85,8 +86,8 @@
         <el-form-item label="创建时间" label-width="80px">
           <el-date-picker value-format="yyyy-MM-dd" type="date" placeholder="选择日期" v-model="editForm.create_date" style="width: 100%;"></el-date-picker>
         </el-form-item>
-        <el-form-item>
-          <el-button type="primary" @click="updateDep">修改</el-button>
+        <el-form-item >
+          <el-button style="margin-left: 420px" type="primary" @click="updateDep">修改</el-button>
           <el-button @click="isShow = false">取消</el-button>
         </el-form-item>
       </el-form>
@@ -151,8 +152,11 @@ export default {
         pageSize: this.pagination.pageSize
       }
       departmentApi.getDepartmentList(paramsData).then(resp => {
-        console.log(resp)
-        this.tableData = resp.data;
+        // if(resp.data.length === 0 && this.pagination.currentPage > 1){
+        //   this.pagination.currentPage --;
+        // }
+
+          this.tableData = resp.data;
         //再次重新设置分页信息 为了避免客户端的分页信息展示和服务器返回的当前页的数据不一致的问题
         this.pagination.pageSize = resp.pageInfo.pageSize;
         this.pagination.currentPage = resp.pageInfo.currentPage;
@@ -186,6 +190,9 @@ export default {
               message: "删除失败",
               duration: 1000
             })
+          }
+          if(this.tableData.length === 1 && this.pagination.currentPage > 1){
+            this.pagination.currentPage --;
           }
           this.getDepartmentList();
         }).catch(error => {
@@ -250,6 +257,15 @@ export default {
     //当前页面大小改变的回调函数
     handleSizeChange(pageSize) {
       this.pagination.pageSize = pageSize
+      //访问服务器
+      this.getDepartmentList()
+    },
+    //清空搜索条件
+    clearSearch(){
+      this.formData.name = ""
+      this.formData.create_date = []
+      this.pagination.currentPage = 1;
+      this.getDepartmentList()
     }
   }
 }
