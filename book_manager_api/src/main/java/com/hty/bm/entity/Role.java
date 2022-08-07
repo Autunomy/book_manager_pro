@@ -9,12 +9,15 @@ import java.util.List;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class User {
+public class Role {
     private Integer id;
-    private String username;
-    private String password;
+    private String name;
     private String descp;
-    private String roleName;
+    private List<Permission> permissionList;//权限列表
 
-    private List<String> permissionList;
+
+    public Role(String name, String descp) {
+        this.name = name;
+        this.descp = descp;
+    }
 }

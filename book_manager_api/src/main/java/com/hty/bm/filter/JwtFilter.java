@@ -10,11 +10,12 @@ import javax.servlet.*;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.List;
 
 public class JwtFilter implements Filter {
+    List<String> whiteList;
     @Override
     public void init(FilterConfig filterConfig) throws ServletException {
-
     }
 
     @Override
@@ -23,6 +24,7 @@ public class JwtFilter implements Filter {
         HttpServletResponse response = (HttpServletResponse) servletResponse;
 
         String token = request.getHeader("Authenticate");
+        String requestURI = request.getRequestURI();
         if(StringUtils.isEmpty(token)){
             filterChain.doFilter(request,response);
         }else{

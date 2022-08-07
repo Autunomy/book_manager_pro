@@ -2,23 +2,16 @@
   <div style="margin: 0 auto;padding:10px">
     <div style="padding-left: 10px;padding-top:10px;">
       <el-form :inline="true" class="demo-form-inline">
-        <el-form-item label="图书名称" style="margin-left: 20px">
-          <el-input v-model="formData.name" placeholder="请输入图书名称查询"></el-input>
+        <el-form-item label="角色名称" style="margin-left: 20px">
+          <el-input v-model="formData.name" placeholder="请输入角色名称"></el-input>
         </el-form-item>
 
-        <el-form-item label="图书发行日期" style="margin-left: 20px">
-          <el-date-picker
-            v-model="formData.release_date"
-            type="daterange"
-            range-separator="至"
-            start-placeholder="开始日期"
-            end-placeholder="结束日期"
-            value-format="yyyy-MM-dd">
-          </el-date-picker>
+        <el-form-item label="角色描述" style="margin-left: 20px">
+          <el-input v-model="formData.descp" placeholder="请输入角色描述"></el-input>
         </el-form-item>
 
         <el-form-item>
-          <el-button @click="searchBookListHandler" style="width: 140px;margin-left: 30px" type="primary">搜索
+          <el-button @click="searchRoleListHandler" style="width: 140px;margin-left: 30px" type="primary">搜索
           </el-button>
           <el-button @click="clearSearch" style="width: 140px;margin-left: 30px" type="default">清空搜索条件</el-button>
         </el-form-item>
@@ -38,50 +31,34 @@
         prop="id">
       </el-table-column>
       <el-table-column
-        label="图书名称"
+        label="角色名称"
         prop="name">
+        <template v-slot="scope">
+          <el-tag
+            :type="scope.row.name == 'ROLE_super-admin' ? 'danger' : (scope.row.name == 'ROLE_boss' ? 'warning' : 'info')"
+            disable-transitions>{{ scope.row.name }}
+          </el-tag>
+        </template>
       </el-table-column>
       <el-table-column
-        label="发行时间"
-        prop="release_date">
+        label="角色描述"
+        prop="descp">
       </el-table-column>
-      <el-table-column
-        label="作者"
-        prop="author">
-      </el-table-column>
-      <el-table-column
-        label="价格(分)"
-        prop="price">
-      </el-table-column>
-      <el-table-column
-        label="发行日期"
-        prop="release_date">
-      </el-table-column>
-      <el-table-column
-        label="库存"
-        prop="stock">
-      </el-table-column>
-      <el-table-column
-        label="封面"
-        v-slot="scope"
-        width="120px">
-        <el-image :src="baseUrl+scope.row.pic_path" fit="contain"></el-image>
-      </el-table-column>
-      <el-table-column min-width="140px" align="center" label="操作">
+      <!--      <el-table-column-->
+      <!--        label="角色列表"-->
+      <!--        prop="parent_tag">-->
+
+      <!--      </el-table-column>-->
+      <el-table-column min-width="140px" fixed="right" align="center" label="操作">
         <template v-slot="scope">
           <el-button
             size="mini"
-            type="primary"
-            @click="deleteBook(scope.$index, tableData)">借出
-          </el-button>
-          <el-button
-            size="mini"
-            @click="editBook(scope.$index, tableData)">编辑
+            @click="editRole(scope.$index, tableData)">编辑
           </el-button>
           <el-button
             size="mini"
             type="danger"
-            @click="deleteBook(scope.$index, tableData)">删除
+            @click="deleteRole(scope.$index, tableData)">删除
           </el-button>
         </template>
       </el-table-column>
@@ -101,38 +78,35 @@
     </el-pagination>
 
     <!--编辑按钮的弹出框-->
-    <el-dialog title="修改学生信息" :visible.sync="isShow" width="40%" top="10vh">
+    <el-dialog title="修改角色信息" :visible.sync="isShow" width="40%" top="20vh">
       <el-form ref="form" :model="editForm" label-width="80px">
-        <el-form-item label="图书名称">
-          <el-input placeholder="请输入图书名称" v-model="editForm.name"></el-input>
+        <el-form-item label="id">
+          <el-input disabled v-model="editForm.id"></el-input>
         </el-form-item>
-        <el-form-item label="图书作者">
-          <el-input placeholder="请输入图书作者" v-model.number="editForm.author"></el-input>
+        <el-form-item label="角色名称">
+          <el-input placeholder="请输入角色名称" v-model="editForm.name">
+            <template slot="prepend">ROLE_</template>
+          </el-input>
         </el-form-item>
-        <el-form-item label="图书价格">
-          <el-input placeholder="请输入图书价格" type="number" v-model="editForm.price"></el-input>
+        <el-form-item label="角色描述">
+          <el-input type="textarea" placeholder="请输入角色描述" v-model.number="editForm.descp"></el-input>
         </el-form-item>
-        <el-form-item label="出版日期">
-          <el-date-picker value-format="yyyy-MM-dd" type="date" placeholder="选择出版日期" v-model="editForm.release_date"
-                          style="width: 100%;"></el-date-picker>
+        <el-form-item label="权限列表">
+          <el-tree
+            :default-expanded-keys="this.editForm.permissionListIds"
+            :default-checked-keys="this.editForm.permissionListIds"
+            :check-strictly="true"
+            node-key="id"
+            ref="tree"
+            style="border: 1px solid #DCDFE6;border-radius: 4px"
+            :data="permissionList"
+            :props="props"
+            show-checkbox
+            @check-change="handlePermissionCheckChange">
+          </el-tree>
         </el-form-item>
-        <el-form-item label="库存">
-          <el-input placeholder="请输入库存" type="number" v-model="editForm.stock"></el-input>
-        </el-form-item>
-        <el-form-item label="图书封面">
-          <el-upload
-            name="pic"
-            class="avatar-uploader"
-            :action="uploadUrl"
-            :show-file-list="false"
-            :on-success="handleAvatarSuccess">
-            <img v-if="editForm.pic_path" :src="editForm.pic_path" class="avatar">
-            <i v-else class="el-icon-plus avatar-uploader-icon"></i>
-          </el-upload>
-        </el-form-item>
-
         <el-form-item>
-          <el-button type="primary" @click="updateBook">修改</el-button>
+          <el-button type="primary" @click="updateRole">修改</el-button>
           <el-button @click="cancle">取消</el-button>
         </el-form-item>
       </el-form>
@@ -144,64 +118,75 @@
 </template>
 
 <script>
-import bookApi from "@/api/book"
+import permissionApi from "@/api/permission"
 import qs from "qs";
+import roleApi from "@/api/role";
 
 export default {
   name: "List",
   data() {
     return {
-      baseUrl:process.env.VUE_APP_BASE_API + "/images/",
-      uploadUrl: process.env.VUE_APP_BASE_API + '/book/uploadPic',
       pagination: {
         total: 0, //总条数
         pageSize: 8, //每页大小
         currentPage: 1 // 当前页码
       },
       tableData: [],
-      formData: {
-        name: "",
-        release_date: []
-      },
       isLoading: false,//加载动画是否开启 false表示不开启
       editForm: {
-        id:'',
+        id: '',
         name: '',
-        author: '',
-        price:0,
-        release_date: "",
-        stock: 0,
-        pic_path:''
+        descp: '',
+        permissionListIds:[]//当前角色具有权限id集合
       },
-      isShow: false
-    }
-  },
-  computed: {
-    startReleaseDate() {
-      if (this.formData.release_date !== null && this.formData.release_date.length === 2)
-        return this.formData.release_date[0];
-    },
-    endReleaseDate() {
-      if (this.formData.release_date !== null && this.formData.release_date.length === 2)
-        return this.formData.release_date[1];
+      isShow: false,
+      formData: {
+        name: '',
+        descp: ''
+      },
+      permissionList: [],//权限树
+      props:{
+        label:'tag'
+      }
     }
   },
   mounted() {
-    this.getBookList();
+    this.getRoleList();
   },
   methods: {
+    handlePermissionCheckChange(){
+      this.editForm.permissionListIds = this.$refs.tree.getCheckedKeys()
+    },
+
+    //获取全部的权限列表
+    getAllPermissionList() {
+      permissionApi.selectAllTreePermissionList().then(resp => {
+        if(resp.code === 6666){
+          this.permissionList = resp.data;
+        }else{
+          this.$message.warning({
+            message: "获取权限树失败",
+            duration: 2000
+          })
+        }
+      }).catch(error => {
+        this.$message.error({
+          message: "获取权限树出错",
+          duration: 2000
+        })
+      })
+    },
     //获取当前页面应该显示的元素
-    getBookList() {
+    getRoleList() {
       //开启加载动画
       this.isLoading = true;
       const paramsData = {
         name: this.formData.name,
-        startReleaseDate: this.startReleaseDate,
-        endReleaseDate: this.endReleaseDate,
+        descp: this.formData.descp,
         currentPage: this.pagination.currentPage,
         pageSize: this.pagination.pageSize
       }
-      bookApi.getBookList(paramsData).then(resp => {
+      roleApi.getRoleList(paramsData).then(resp => {
         this.tableData = resp.data;
         //再次重新设置分页信息 为了避免客户端的分页信息展示和服务器返回的当前页的数据不一致的问题
         this.pagination.pageSize = resp.pageInfo.pageSize;
@@ -217,15 +202,15 @@ export default {
       this.isLoading = false;
     },
     //删除信息
-    deleteBook(idx, data) {
+    deleteRole(idx, data) {
       //消息弹出框
-      this.$confirm('是否要删除当前学生(删除将无法找回)?', '提示', {
+      this.$confirm('是否要删除当前角色(删除将无法找回)?', '提示', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
         type: 'warning'
       }).then(() => {
         //点击了确定按钮 那么就删除当前院系
-        bookApi.deleteBook(data[idx].id).then(resp => {
+        roleApi.deleteRole(data[idx].id).then(resp => {
           if (resp.code === 6666) {
             this.$message.success({
               message: "删除成功",
@@ -240,7 +225,7 @@ export default {
           if (this.tableData.length === 1 && this.pagination.currentPage > 1) {
             this.pagination.currentPage--;
           }
-          this.getBookList();
+          this.getRoleList();
         }).catch(error => {
           this.$message.error({
             message: "网络出错啦",
@@ -257,25 +242,44 @@ export default {
 
     },
     //修改信息弹出框
-    editBook(idx, data) {
+    editRole(idx, data) {
       //需要修改的信息是 data[idx]
       this.isShow = true;
       this.editForm.id = data[idx].id;
-      this.editForm.name = data[idx].name;
-      this.editForm.author = data[idx].author;
-      this.editForm.price = data[idx].price;
-      this.editForm.release_date = data[idx].release_date;
-      this.editForm.stock = data[idx].stock;
-      this.editForm.pic_path = process.env.VUE_APP_BASE_API + "/images/" +data[idx].pic_path;
+      this.editForm.name = data[idx].name.substring(5);
+      this.editForm.descp = data[idx].descp;
+      //获取权限树
+      this.getAllPermissionList();
+
+      roleApi.selectRoleById(data[idx].id).then(resp => {
+        this.editForm.permissionListIds = []
+        if(resp.code === 6666){
+          resp.data.permissionList.forEach(permission => {
+            this.editForm.permissionListIds.push(permission.id);
+          })
+          console.log(this.editForm.permissionListIds)
+        }else{
+          this.$message.warning({
+            message:"获取权限列表失败",
+            duration:2000
+          })
+        }
+      }).catch(error => {
+        this.$message.error({
+          message:"获取权限列表出错",
+          duration:2000
+        })
+      })
+
     },
-    cancle(){
+    cancle() {
       this.isShow = false
     },
     //修改信息
-    updateBook() {
-      bookApi.updateBook(qs.stringify(this.editForm)).then(resp => {
+    updateRole() {
+      roleApi.updateRoleById(this.editForm.id,qs.stringify(this.editForm,{indices: false})).then(resp => {
         if (resp.code === 6666) {//修改成功
-          this.getBookList()
+          this.getRoleList()
           this.$message.success({
             message: "修改成功",
             duration: 2000
@@ -294,38 +298,30 @@ export default {
       })
       this.isShow = false;
     },
-    //查询
-    searchBookListHandler() {
-      //搜索之后将当前页码置为第一页
-      this.pagination.currentPage = 1;
-      this.getBookList();
-    },
     //当前页码改变的时候的回调函数
     handleCurrentPage(currentPage) {
       //更新当前页码
       this.pagination.currentPage = currentPage
       //访问服务器数据
-      this.getBookList()
+      this.getRoleList()
     },
     //当前页面大小改变的回调函数
     handleSizeChange(pageSize) {
       this.pagination.pageSize = pageSize
       //访问服务器
-      this.getBookList()
+      this.getRoleList()
     },
     //清空搜索条件
     clearSearch() {
       this.formData.name = ""
-      this.formData.release_date = []
+      this.formData.descp = ""
       this.pagination.currentPage = 1;
-      this.getBookList()
+      this.getRoleList()
     },
-
-    handleAvatarSuccess(response,file,fileList){
-      if(response.code === 6666){
-        this.editForm.pic_path = process.env.VUE_APP_BASE_API + "/images/" +response.data.pic_path;
-      }
-    },
+    searchRoleListHandler() {
+      this.pagination.currentPage = 1;
+      this.getRoleList();
+    }
   }
 }
 </script>
@@ -354,9 +350,11 @@ export default {
   position: relative;
   overflow: hidden;
 }
+
 .avatar-uploader .el-upload:hover {
   border-color: #409EFF;
 }
+
 .avatar-uploader-icon {
   font-size: 28px;
   color: #8c939d;
@@ -365,6 +363,7 @@ export default {
   line-height: 178px;
   text-align: center;
 }
+
 .avatar {
   width: 178px;
   height: 178px;

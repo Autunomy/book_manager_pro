@@ -2,24 +2,17 @@
   <div style="margin: 0 auto;padding:10px">
     <div style="padding-left: 10px;padding-top:10px;">
       <el-form :inline="true" class="demo-form-inline">
-        <el-form-item label="图书名称" style="margin-left: 20px">
-          <el-input v-model="formData.name" placeholder="请输入图书名称查询"></el-input>
+        <el-form-item label="用户名称" style="margin-left: 20px">
+          <el-input v-model="formData.username" placeholder="请输入用户名称"></el-input>
         </el-form-item>
 
-        <el-form-item label="图书发行日期" style="margin-left: 20px">
-          <el-date-picker
-            v-model="formData.release_date"
-            type="daterange"
-            range-separator="至"
-            start-placeholder="开始日期"
-            end-placeholder="结束日期"
-            value-format="yyyy-MM-dd">
-          </el-date-picker>
+        <el-form-item label="用户描述" style="margin-left: 20px">
+          <el-input v-model="formData.descp" placeholder="请输入用户描述"></el-input>
         </el-form-item>
 
         <el-form-item>
-          <el-button @click="searchBookListHandler" style="width: 140px;margin-left: 30px" type="primary">搜索
-          </el-button>
+                    <el-button @click="searchUserListHandler" style="width: 140px;margin-left: 30px" type="primary">搜索
+                    </el-button>
           <el-button @click="clearSearch" style="width: 140px;margin-left: 30px" type="default">清空搜索条件</el-button>
         </el-form-item>
       </el-form>
@@ -38,50 +31,31 @@
         prop="id">
       </el-table-column>
       <el-table-column
-        label="图书名称"
-        prop="name">
+        label="用户名"
+        prop="username">
       </el-table-column>
       <el-table-column
-        label="发行时间"
-        prop="release_date">
+        label="密码"
+        prop="password">
       </el-table-column>
       <el-table-column
-        label="作者"
-        prop="author">
+        label="用户描述"
+        prop="descp">
       </el-table-column>
       <el-table-column
-        label="价格(分)"
-        prop="price">
+        label="用户角色"
+        prop="roleName">
       </el-table-column>
-      <el-table-column
-        label="发行日期"
-        prop="release_date">
-      </el-table-column>
-      <el-table-column
-        label="库存"
-        prop="stock">
-      </el-table-column>
-      <el-table-column
-        label="封面"
-        v-slot="scope"
-        width="120px">
-        <el-image :src="baseUrl+scope.row.pic_path" fit="contain"></el-image>
-      </el-table-column>
-      <el-table-column min-width="140px" align="center" label="操作">
+      <el-table-column min-width="140px" fixed="right" align="center" label="操作">
         <template v-slot="scope">
           <el-button
             size="mini"
-            type="primary"
-            @click="deleteBook(scope.$index, tableData)">借出
-          </el-button>
-          <el-button
-            size="mini"
-            @click="editBook(scope.$index, tableData)">编辑
+            @click="editUser(scope.$index, tableData)">编辑
           </el-button>
           <el-button
             size="mini"
             type="danger"
-            @click="deleteBook(scope.$index, tableData)">删除
+            @click="deleteUser(scope.$index, tableData)">删除
           </el-button>
         </template>
       </el-table-column>
@@ -101,38 +75,34 @@
     </el-pagination>
 
     <!--编辑按钮的弹出框-->
-    <el-dialog title="修改学生信息" :visible.sync="isShow" width="40%" top="10vh">
+    <el-dialog title="修改用户信息" :visible.sync="isShow" width="40%" top="20vh">
       <el-form ref="form" :model="editForm" label-width="80px">
-        <el-form-item label="图书名称">
-          <el-input placeholder="请输入图书名称" v-model="editForm.name"></el-input>
+        <el-form-item label="id">
+          <el-input disabled v-model="editForm.id"></el-input>
         </el-form-item>
-        <el-form-item label="图书作者">
-          <el-input placeholder="请输入图书作者" v-model.number="editForm.author"></el-input>
+        <el-form-item label="用户名称">
+          <el-input placeholder="请输入用户名称" v-model="editForm.username"></el-input>
         </el-form-item>
-        <el-form-item label="图书价格">
-          <el-input placeholder="请输入图书价格" type="number" v-model="editForm.price"></el-input>
+        <el-form-item label="密码">
+          <el-input placeholder="请输入密码" v-model.number="editForm.password"></el-input>
         </el-form-item>
-        <el-form-item label="出版日期">
-          <el-date-picker value-format="yyyy-MM-dd" type="date" placeholder="选择出版日期" v-model="editForm.release_date"
-                          style="width: 100%;"></el-date-picker>
+        <el-form-item label="用户描述">
+          <el-input type="textarea" placeholder="请输入用户描述" v-model.number="editForm.descp"></el-input>
         </el-form-item>
-        <el-form-item label="库存">
-          <el-input placeholder="请输入库存" type="number" v-model="editForm.stock"></el-input>
+        <el-form-item label="所属角色">
+          <el-select v-model="editForm.rid" filterable placeholder="请选择角色" style="width: 100%">
+            <el-option
+              v-for="item in roleList"
+              :key="item.id"
+              :label="item.name"
+              :value="item.id">
+              <span style="float: left">{{ item.name }}</span>
+              <span style="float: right; color: #8492a6; font-size: 13px">{{ item.descp }}</span>
+            </el-option>
+          </el-select>
         </el-form-item>
-        <el-form-item label="图书封面">
-          <el-upload
-            name="pic"
-            class="avatar-uploader"
-            :action="uploadUrl"
-            :show-file-list="false"
-            :on-success="handleAvatarSuccess">
-            <img v-if="editForm.pic_path" :src="editForm.pic_path" class="avatar">
-            <i v-else class="el-icon-plus avatar-uploader-icon"></i>
-          </el-upload>
-        </el-form-item>
-
         <el-form-item>
-          <el-button type="primary" @click="updateBook">修改</el-button>
+          <el-button type="primary" @click="updateUser">修改</el-button>
           <el-button @click="cancle">取消</el-button>
         </el-form-item>
       </el-form>
@@ -144,64 +114,69 @@
 </template>
 
 <script>
-import bookApi from "@/api/book"
+import userApi from "@/api/user"
 import qs from "qs";
+import roleApi from "@/api/role";
 
 export default {
   name: "List",
   data() {
     return {
-      baseUrl:process.env.VUE_APP_BASE_API + "/images/",
-      uploadUrl: process.env.VUE_APP_BASE_API + '/book/uploadPic',
       pagination: {
         total: 0, //总条数
         pageSize: 8, //每页大小
         currentPage: 1 // 当前页码
       },
       tableData: [],
-      formData: {
-        name: "",
-        release_date: []
-      },
       isLoading: false,//加载动画是否开启 false表示不开启
       editForm: {
-        id:'',
-        name: '',
-        author: '',
-        price:0,
-        release_date: "",
-        stock: 0,
-        pic_path:''
+        id: '',
+        username: '',
+        password: '',
+        descp: '',
+        rid: ''
       },
-      isShow: false
-    }
-  },
-  computed: {
-    startReleaseDate() {
-      if (this.formData.release_date !== null && this.formData.release_date.length === 2)
-        return this.formData.release_date[0];
-    },
-    endReleaseDate() {
-      if (this.formData.release_date !== null && this.formData.release_date.length === 2)
-        return this.formData.release_date[1];
+      isShow: false,
+      formData: {
+        username: '',
+        descp: ''
+      },
+      roleList: []
     }
   },
   mounted() {
-    this.getBookList();
+    this.getUserList();
   },
   methods: {
+    getAllRoleList() {
+      roleApi.selectRoleList().then(resp => {
+        if(resp.code === 6666){
+          this.roleList = resp.data;
+        }else{
+          this.$message.warning({
+            message: "获取角色列表失败",
+            duration: 2000
+          })
+        }
+      }).catch(error => {
+        this.$message.error({
+          message: "获取角色列表出错"+error,
+          duration: 2000
+        })
+      })
+    },
     //获取当前页面应该显示的元素
-    getBookList() {
+    getUserList() {
       //开启加载动画
       this.isLoading = true;
       const paramsData = {
-        name: this.formData.name,
-        startReleaseDate: this.startReleaseDate,
-        endReleaseDate: this.endReleaseDate,
+        username: this.formData.username,
+        descp: this.formData.descp,
         currentPage: this.pagination.currentPage,
         pageSize: this.pagination.pageSize
       }
-      bookApi.getBookList(paramsData).then(resp => {
+      userApi.getUserList(qs.stringify(paramsData)).then(resp => {
+        console.log(resp)
         this.tableData = resp.data;
         //再次重新设置分页信息 为了避免客户端的分页信息展示和服务器返回的当前页的数据不一致的问题
         this.pagination.pageSize = resp.pageInfo.pageSize;
@@ -217,15 +192,14 @@ export default {
       this.isLoading = false;
     },
     //删除信息
-    deleteBook(idx, data) {
+    deleteUser(idx, data) {
       //消息弹出框
-      this.$confirm('是否要删除当前学生(删除将无法找回)?', '提示', {
+      this.$confirm('是否要删除当前用户(删除将无法找回)?', '提示', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
         type: 'warning'
       }).then(() => {
-        //点击了确定按钮 那么就删除当前院系
-        bookApi.deleteBook(data[idx].id).then(resp => {
+        userApi.deleteUser(data[idx].id).then(resp => {
           if (resp.code === 6666) {
             this.$message.success({
               message: "删除成功",
@@ -240,7 +214,7 @@ export default {
           if (this.tableData.length === 1 && this.pagination.currentPage > 1) {
             this.pagination.currentPage--;
           }
-          this.getBookList();
+          this.getUserList();
         }).catch(error => {
           this.$message.error({
             message: "网络出错啦",
@@ -257,25 +231,39 @@ export default {
 
     },
     //修改信息弹出框
-    editBook(idx, data) {
+    editUser(idx, data) {
+      console.log(data[idx]);
       //需要修改的信息是 data[idx]
       this.isShow = true;
       this.editForm.id = data[idx].id;
-      this.editForm.name = data[idx].name;
-      this.editForm.author = data[idx].author;
-      this.editForm.price = data[idx].price;
-      this.editForm.release_date = data[idx].release_date;
-      this.editForm.stock = data[idx].stock;
-      this.editForm.pic_path = process.env.VUE_APP_BASE_API + "/images/" +data[idx].pic_path;
+      this.editForm.username = data[idx].username;
+      this.editForm.password = data[idx].password;
+      this.editForm.descp = data[idx].descp;
+      roleApi.selectRoleByName(data[idx].roleName).then(resp => {
+        if(resp.code === 6666){
+          this.editForm.rid = resp.data.id;
+        }else{
+          this.$message.warning({
+            message:"获取角色列表失败",
+            duration:2000
+          })
+        }
+      }).catch(error => {
+        this.$message.error({
+          message:"获取角色列表出错"+error,
+          duration:2000
+        })
+      })
+      this.getAllRoleList();
     },
-    cancle(){
+    cancle() {
       this.isShow = false
     },
     //修改信息
-    updateBook() {
-      bookApi.updateBook(qs.stringify(this.editForm)).then(resp => {
+    updateUser() {
+      userApi.updateUserById(this.editForm.id,qs.stringify(this.editForm)).then(resp => {
         if (resp.code === 6666) {//修改成功
-          this.getBookList()
+          this.getUserList()
           this.$message.success({
             message: "修改成功",
             duration: 2000
@@ -294,38 +282,30 @@ export default {
       })
       this.isShow = false;
     },
-    //查询
-    searchBookListHandler() {
-      //搜索之后将当前页码置为第一页
-      this.pagination.currentPage = 1;
-      this.getBookList();
-    },
     //当前页码改变的时候的回调函数
     handleCurrentPage(currentPage) {
       //更新当前页码
       this.pagination.currentPage = currentPage
       //访问服务器数据
-      this.getBookList()
+      this.getUserList()
     },
     //当前页面大小改变的回调函数
     handleSizeChange(pageSize) {
       this.pagination.pageSize = pageSize
       //访问服务器
-      this.getBookList()
+      this.getUserList()
     },
     //清空搜索条件
     clearSearch() {
-      this.formData.name = ""
-      this.formData.release_date = []
+      this.formData.username = ""
+      this.formData.descp = ""
       this.pagination.currentPage = 1;
-      this.getBookList()
+      this.getUserList()
     },
-
-    handleAvatarSuccess(response,file,fileList){
-      if(response.code === 6666){
-        this.editForm.pic_path = process.env.VUE_APP_BASE_API + "/images/" +response.data.pic_path;
-      }
-    },
+    searchUserListHandler() {
+      this.pagination.currentPage = 1;
+      this.getUserList();
+    }
   }
 }
 </script>
@@ -354,9 +334,11 @@ export default {
   position: relative;
   overflow: hidden;
 }
+
 .avatar-uploader .el-upload:hover {
   border-color: #409EFF;
 }
+
 .avatar-uploader-icon {
   font-size: 28px;
   color: #8c939d;
@@ -365,6 +347,7 @@ export default {
   line-height: 178px;
   text-align: center;
 }
+
 .avatar {
   width: 178px;
   height: 178px;

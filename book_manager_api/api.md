@@ -81,7 +81,7 @@
 | -------- | -------- | ------ |
 | id       | int      | 院系id |
 
-## 2.3.获取全部院系
+## 2.3.分页获取院系信息
 
 请求地址:`/department/getDepartmentList`
 
@@ -110,4 +110,12 @@
 | id          | int      | id号     |
 | name        | String   | 院系名称 |
 | create_date | String   | 创建时间 |
+
+## 2.5.获取全部院系
+
+请求地址:`/department/listAll`
+
+请求方式:`GET`
+
+# 3.后台图书接口
 

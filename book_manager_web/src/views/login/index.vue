@@ -101,6 +101,9 @@ export default {
           });
           //给sessionStroage中存放数据
           setToken(resp.data.access_token);
+          //将权限信息也存储进session中
+          window.sessionStorage.setItem("permissionList",resp.data.permissionList);
+
           //路由跳转
           this.$router.push({
             path:this.redirect || "/"

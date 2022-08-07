@@ -12,7 +12,7 @@ public class UserDaoTest extends TestCase {
 
     @Test
     public void testSelectByUserNme() throws SQLException {
-        User user = userDao.selectByUserNme("admin");
+        User user = userDao.selectByUserName("admin");
         System.out.println(user);
     }
 }
